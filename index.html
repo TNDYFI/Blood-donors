@@ -3,145 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DYFI இரத்த தான கழகம்</title>
+    <title>DYFI Blood Service</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
-        :root { --red: #D32F2F; --white: #ffffff; --grey: #f4f4f4; --green: #4CAF50; --blue: #2196F3; }
+        :root { --red: #D32F2F; --white: #ffffff; --grey: #f0f2f5; --green: #2ecc71; --blue: #003366; --light-blue: #0066cc; --black: #1a1a1a; }
         * { margin:0; padding:0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { background: var(--grey); overflow-x: hidden; }
 
-        /* --- Animations & Overlays --- */
-        #loader { position: fixed; inset: 0; background: var(--red); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; }
-        .heart { font-size: 80px; animation: beat 1s infinite; }
+        /* --- Loader --- */
+        #loader { position: fixed; inset: 0; background: var(--blue); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; }
+        .heart { font-size: 80px; animation: beat 1s infinite; color: #ff3333; }
         @keyframes beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
 
-        #success-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 11000; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .tick-icon { font-size: 100px; color: var(--green); animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+        /* --- Header --- */
+        header { background: var(--red); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .dropdown { position: absolute; top: 60px; right: 10px; background: white; color: black; box-shadow: 0 5px 25px rgba(0,0,0,0.2); border-radius: 12px; display: none; width: 220px; z-index: 2000; overflow: hidden; }
+        .dropdown div { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 14px; }
 
-        /* --- Header & Navigation --- */
-        header { background: var(--red); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        .menu-dropdown { position: absolute; top: 60px; right: 10px; background: white; color: black; box-shadow: 0 5px 25px rgba(0,0,0,0.2); border-radius: 10px; display: none; width: 220px; overflow: hidden; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .menu-dropdown p { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
-        .menu-dropdown p:hover { background: #f9f9f9; }
-
+        /* --- UI Navigation --- */
         nav { display: flex; background: white; border-bottom: 1px solid #ddd; }
-        nav button { flex: 1; padding: 15px; border: none; background: none; font-weight: bold; cursor: pointer; transition: 0.3s; border-bottom: 4px solid transparent; }
+        nav button { flex: 1; padding: 15px; border: none; background: none; font-weight: bold; cursor: pointer; color: #666; border-bottom: 4px solid transparent; }
         nav button.active { border-bottom-color: var(--red); color: var(--red); }
 
-        /* --- Forms & UI --- */
         .container { padding: 15px; max-width: 600px; margin: auto; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); margin-bottom: 20px; }
-        .section { display: none; }
-        .active-section { display: block; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); margin-bottom: 20px; border-top: 4px solid var(--red); }
+        input, select, textarea { width: 100%; padding: 14px; margin: 10px 0; border: 1.5px solid #ddd; border-radius: 10px; outline: none; font-size: 14px; }
+        .btn { width: 100%; padding: 15px; background: var(--red); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
 
-        input, select { width: 100%; padding: 14px; margin: 10px 0; border: 1.5px solid #ddd; border-radius: 8px; font-size: 15px; outline: none; transition: 0.3s; }
-        input:focus, select:focus { border-color: var(--red); }
-        .btn { width: 100%; padding: 15px; background: var(--red); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; box-shadow: 0 4px 8px rgba(211, 47, 47, 0.3); }
-        .btn:active { transform: scale(0.98); }
+        /* --- ADMIN PANEL PREMIUM BLUE UI --- */
+        #admin-panel { position: fixed; inset: 0; background: #ebf2fa; z-index: 5000; display: none; overflow-y: auto; }
+        .admin-header { position: fixed; top: 0; width: 100%; background: var(--blue); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; z-index: 5001; }
+        .admin-tabs { display: flex; background: #002244; position: sticky; top: 55px; z-index: 5002; }
+        .admin-tabs button { flex: 1; color: white; padding: 15px; border: none; background: none; opacity: 0.6; font-weight: 600; cursor: pointer; }
+        .admin-tabs button.active { opacity: 1; border-bottom: 4px solid #00ccff; }
 
-        /* --- Donor Display & Admin --- */
-        .donor-item { background: white; padding: 18px; border-radius: 12px; margin-bottom: 15px; border-left: 8px solid var(--red); position: relative; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
-        .status-dot { height: 14px; width: 14px; border-radius: 50%; position: absolute; right: 18px; top: 18px; }
-        .dot-green { background: var(--green); box-shadow: 0 0 8px var(--green); }
-        .dot-red { background: var(--red); box-shadow: 0 0 8px var(--red); }
+        .search-section { background: white; padding: 15px; border-radius: 15px; margin-top: 120px; margin-bottom: 15px; border: 1px solid #d1e3f8; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .search-title { font-size: 12px; font-weight: bold; color: var(--blue); margin-bottom: 8px; text-transform: uppercase; }
 
-        #admin-panel { position: fixed; inset: 0; background: white; z-index: 5000; display: none; overflow-y: auto; padding-top: 70px; }
-        .admin-header { position: fixed; top: 0; width: 100%; background: #1a1a1a; color: white; padding: 18px; display: flex; justify-content: space-between; align-items: center; z-index: 5001; }
-        .admin-donor-card { border-bottom: 1px solid #eee; padding: 20px; }
-        .admin-btns { display: flex; gap: 10px; margin-top: 15px; }
-        .admin-btns button { flex: 1; padding: 12px; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; }
+        .list-item { background: white; padding: 18px; border-radius: 15px; margin-bottom: 15px; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 1px solid #eef2f6; transition: 0.3s; }
+        .list-item:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .list-item strong { color: var(--blue); font-size: 16px; }
+        .status-badge { position: absolute; top: 15px; right: 15px; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; color: white; }
 
-        /* Modal */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 6000; justify-content: center; align-items: center; padding: 20px; }
-        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 100%; max-width: 450px; text-align: center; }
+        .master-btns { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f0f0f0; flex-wrap: wrap; }
+        .m-btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        .edit-btn { background: #e3f2fd; color: #1565c0; }
+        .del-btn { background: #ffebee; color: #c62828; }
+        .date-btn { background: #e8f5e9; color: #2e7d32; }
+        .call-btn { background: #e1f5fe; color: #0288d1; text-decoration: none; display: inline-flex; align-items: center; }
+
+        /* --- Modals --- */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,34,68,0.85); z-index: 9999; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; position: relative; }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #999; }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <i class="fas fa-heartbeat heart"></i>
-        <h1 style="margin-top:20px; letter-spacing: 2px;">DYFI<h1>
-        <h4><p>இரத்த தான கழகம்..</p></h4>
-    </div>
-
-    <div id="success-overlay">
-        <i class="fas fa-check-circle tick-icon"></i>
-        <h2 style="margin-top:15px; color:var(--green);" id="success-msg">வெற்றிகரமாக சேமிக்கப்பட்டது!</h2>
-    </div>
+    <div id="loader"><i class="fas fa-heartbeat heart"></i><h2 style="margin-top:10px; font-weight:300;">DYFI BLOOD Service</h2><br><h4>இரத்த தான கழகம்</h4> </div>
+    
 
     <header>
-        <h3 id="app-title"><i class="fas fa-drop"></i> Blood Point</h3>
-        <i class="fas fa-ellipsis-v" onclick="toggleMenu()" style="font-size: 22px; cursor: pointer; padding: 5px;"></i>
-        <div class="menu-dropdown" id="mainMenu">
-            <p onclick="openAdmin()"><i class="fas fa-user-shield"></i> Admin Console</p>
-            <p onclick="openAbout()"><i class="fas fa-info-circle"></i> About Us</p>
-            <p onclick="openContact()"><i class="fas fa-phone-alt"></i> Help Line</p>
-            <p onclick="toggleMenu()" style="background:#fff0f0; color:var(--red); font-weight:bold;"><i class="fas fa-times-circle"></i> CANCEL</p>
+        <h3><i class="fas fa-tint"></i> DYFI Blood</h3>
+        <i class="fas fa-ellipsis-v" onclick="toggleMenu()" style="cursor: pointer; padding: 10px;"></i>
+        <div class="dropdown" id="menuBox">
+            <div onclick="openModal('loginModal')"><i class="fas fa-user-shield"></i> Admin Panel</div>
+            <div onclick="openModal('helpModal')"><i class="fas fa-phone-alt"></i> Help Line</div>
+            <div onclick="openModal('aboutModal')"><i class="fas fa-info-circle"></i> About Us</div>
+            <div onclick="toggleMenu()" style="color:red;"><i class="fas fa-times-circle"></i> CANCEL</div>
         </div>
     </header>
 
     <nav>
-        <button id="t1" class="active" onclick="showSec('register')">REGISTER</button>
-        <button id="t2" onclick="showSec('search')">FIND DONOR</button>
+        <button id="t1" class="active" onclick="showSec('donate')">பதிவு (DONATE)</button>
+        <button id="t2" onclick="showSec('need')">ரத்தத் தேவை (NEED)</button>
     </nav>
 
     <div class="container">
-        <div id="register" class="section active-section">
+        <div id="donate" class="section">
             <div class="card">
-                <h4 id="form-head" style="color:var(--red); margin-bottom:10px;">புதிய DONAR பதிவு</h4>
-                <input type="hidden" id="edit-key"> <input type="text" id="regName" placeholder="தானாளர் பெயர்">
-                <select id="regBlood">
-                    <option value="">இரத்த வகை தேர்வு செய்க</option>
-                    <option>A+</option><option>B+</option><option>O+</option><option>AB+</option>
-                    <option>A-</option><option>B-</option><option>O-</option><option>AB-</option>
-                </select>
-                <select id="regDist" onchange="loadTalukas('regDist', 'regTaluk')"></select>
-                <select id="regTaluk"><option value="">தாலுக்காவை தேர்வு செய்க</option></select>
-                <input type="tel" id="regPhone" placeholder="அலைபேசி எண் (10 digits)">
-                <button class="btn" id="save-btn" onclick="saveDonor()">சேமிக்க (SAVE)</button>
-                <button class="btn" id="cancel-edit" style="display:none; background:#555; margin-top:10px;" onclick="resetForm()">திருத்தத்தை ரத்துசெய்</button>
+                <h4 style="color:var(--red);"><i class="fas fa-user-plus"></i> தானாளர் பதிவு</h4>
+                <input type="text" id="donName" placeholder="பெயர்">
+                <select id="donBlood"><option value="">இரத்த வகை</option><option>A+</option><option>B+</option><option>O+</option><option>AB+</option><option>A-</option><option>B-</option><option>O-</option><option>AB-</option></select>
+                <select id="donDist" onchange="loadTalukas('donDist', 'donTaluk')"></select>
+                <select id="donTaluk"><option value="">தாலுக்கா</option></select>
+                <input type="tel" id="donPhone" placeholder="அலைபேசி எண்">
+                <button class="btn" onclick="saveData('donors')">SUBMIT DETAILS</button>
             </div>
         </div>
 
-        <div id="search" class="section">
-            <div class="card">
-                <h4 style="color:var(--red); margin-bottom:10px;">DONAR தேடுக</h4>
-                <select id="searchBlood">
-                    <option value="All">அனைத்து இரத்த வகைகளும்</option>
-                    <option>A+</option><option>B+</option><option>O+</option><option>AB+</option>
-                    <option>A-</option><option>B-</option><option>O-</option><option>AB-</option>
-                </select>
-                <select id="searchDist" onchange="loadTalukas('searchDist', 'searchTaluk')"></select>
-                <select id="searchTaluk"><option value="">அனைத்து தாலுக்காக்களும்</option></select>
-                <button class="btn" onclick="findDonor()"><i class="fas fa-search"></i> தேடுக</button>
+        <div id="need" class="section" style="display:none;">
+            <div class="card" style="border-top-color:var(--light-blue);">
+                <h4 style="color:var(--light-blue);"><i class="fas fa-hospital"></i> ரத்தத் தேவை (Request)</h4>
+                <input type="text" id="reqName" placeholder="நோயாளி பெயர்">
+                <select id="reqBlood"><option value="">இரத்த வகை</option><option>A+</option><option>B+</option><option>O+</option><option>AB+</option><option>A-</option><option>B-</option><option>O-</option><option>AB-</option></select>
+                <select id="reqDist" onchange="loadTalukas('reqDist', 'reqTaluk')"></select>
+                <select id="reqTaluk"><option value="">தாலுக்கா</option></select>
+                <input type="text" id="reqHospital" placeholder="மருத்துவமனை">
+                <textarea id="reqNote" placeholder="மேலதிக விவரங்கள்..."></textarea>
+                <input type="tel" id="reqPhone" placeholder="தொடர்பு எண்">
+                <button class="btn" style="background:var(--light-blue);" onclick="saveData('requests')">SEND REQUEST</button>
             </div>
-            <div id="searchResults"></div>
         </div>
     </div>
 
     <div id="admin-panel">
         <div class="admin-header">
-            <h3><i class="fas fa-lock"></i> Admin Panel</h3>
-            <i class="fas fa-times" onclick="closeAdmin()" style="font-size: 26px; cursor: pointer;"></i>
+            <h3><i class="fas fa-shield-alt"></i> <span id="panelTitle">Console</span></h3>
+            <i class="fas fa-power-off" onclick="closeAdmin()" style="cursor:pointer; background:rgba(255,255,255,0.2); padding:8px; border-radius:50%;"></i>
         </div>
-        <div style="padding: 15px;">
-            <input type="text" id="adminLiveSearch" placeholder="பெயர் அல்லது தாலுக்கா மூலம் தேட..." onkeyup="adminFilter()">
+        <div class="admin-tabs">
+            <button id="tabDon" class="active" onclick="switchTab('donors')">DONORS LIST</button>
+            <button id="tabReq" onclick="switchTab('requests')">BLOOD REQUESTS</button>
+        </div>
+        
+        <div class="container" style="padding-bottom:50px;">
+            <div class="search-section">
+                <div class="search-title">தானாளர் அல்லது மாவட்டத்தை தேடுக:</div>
+                <select id="searchDist" onchange="loadTalukas('searchDist', 'searchTaluk', true); filterAdminList()"></select>
+                <select id="searchTaluk" onchange="filterAdminList()"></select>
+                <select id="searchBlood" onchange="filterAdminList()"><option value="">அனைத்து இரத்த வகை</option><option>A+</option><option>B+</option><option>O+</option><option>AB+</option><option>A-</option><option>B-</option><option>O-</option><option>AB-</option></select>
+            </div>
+            
             <div id="adminList"></div>
         </div>
     </div>
 
-    <div id="modalBox" class="modal">
-        <div class="modal-content" id="modalBody"></div>
-    </div>
+    <div id="loginModal" class="modal"><div class="modal-content"><span class="close-modal" onclick="closeModal('loginModal')">&times;</span><h3>Admin Login</h3><input type="text" id="user" placeholder="Username"><input type="password" id="pass" placeholder="Password"><button class="btn" style="background:var(--blue);" onclick="checkLogin()">VERIFY & LOGIN</button></div></div>
+    
+    <div id="helpModal" class="modal"><div class="modal-content"><span class="close-modal" onclick="closeModal('helpModal')">&times;</span><i class="fas fa-headset" style="font-size:50px; color:var(--blue); margin-bottom:10px;"></i><h3>ஹெல்ப் லைன்</h3><p>உதவிக்கு எங்களை அழைக்கவும்</p><a href="tel:+919943539913" class="btn" style="background:var(--blue); text-decoration:none; display:block; margin-top:15px;"><i class="fas fa-phone-alt"></i> 9943539913</a><a href="mailto:dyfiblood@gmail.com" class="btn" style="background:var(--red); text-decoration:none; display:block; margin-top:10px;"><i class="fas fa-envelope"></i> Email Us</a></div></div>
+    
+    <div id="aboutModal" class="modal"><div class="modal-content"><span class="close-modal" onclick="closeModal('aboutModal')">&times;</span><img src="https://dyfi.org.in/images/logo.png" width="80" style="margin-bottom:10px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1297/1297136.png'"><h3>DYFI Blood Point</h3><p style="font-size:13px; color:#666; line-height:1.6; margin-top:10px;">இது ஒரு தன்னார்வ ரத்த தான சேவை தளம். எவ்வித லாப நோக்கமுமின்றி பொதுமக்களுக்கு உதவும் நோக்கில் உருவாக்கப்பட்டது.</p><p style="color:var(--red); font-weight:bold; margin-top:15px;">உயிர் காக்க இணைவோம்!</p></div></div>
+
+    <div id="masterModal" class="modal"><div class="modal-content" id="masterContent"></div></div>
 
     <script>
-        // --- Firebase Configuration ---
         const firebaseConfig = {
             apiKey: "AIzaSyBLyf_dz6xPC9wdthZSVtpatkc8JgFhE4Q",
             authDomain: "chatbox-chats.firebaseapp.com",
@@ -152,246 +152,132 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // --- All 38 Districts & Major Talukas Data ---
+        let currentRole = ""; let currentTab = "donors";
         const tnData = {
             "Ariyalur": ["Ariyalur", "Sendurai", "Udayarpalayam", "Andimadam"],
-            "Chengalpattu": ["Chengalpattu", "Cheyyur", "Madhuranthakam", "Pallavaram", "Tambaram", "Thiruporur", "Vandalur"],
-            "Chennai": ["Alandur", "Ambattur", "Aminjikarai", "Ayanavaram", "Egmore", "Guindy", "Madhavaram", "Mylapore", "Perambur", "Purasawalkam", "Sholinganallur", "T Nagar", "Tondiarpet", "Velachery"],
-            "Coimbatore": ["Coimbatore North", "Coimbatore South", "Madukkarai", "Mettupalayam", "Perur", "Pollachi", "Sulur", "Valparai"],
-            "Cuddalore": ["Cuddalore", "Bhuvanagiri", "Chidambaram", "Kattumannarkoil", "Kurinjipadi", "Panruti", "Srimushnam", "Tittakudi", "Veppur"],
-            "Dharmapuri": ["Dharmapuri", "Harur", "Karimangalam", "Nallampalli", "Palacode", "Pappireddipatti", "Pennagaram"],
-            "Dindigul": ["Dindigul East", "Dindigul West", "Atthur", "Guziliamparai", "Kodaikanal", "Natham", "Nilakottai", "Oddanchatram", "Palani", "Vedasandur"],
-            "Erode": ["Erode", "Anthiyur", "Bhavani", "Gobichettipalayam", "Kodumudi", "Modakkurichi", "Nambiyur", "Perundurai", "Sathyamangalam", "Thalavadi"],
-            "Kallakurichi": ["Kallakurichi", "Chinnasalem", "Kalvarayan Hills", "Sankarapuram", "Tirukkoilur", "Ulundurpet"],
-            "Kancheepuram": ["Kancheepuram", "Kundrathur", "Sriperumbudur", "Uthiramerur", "Walajabad"],
-            "Kanniyakumari": ["Agasteeswaram", "Kalkulam", "Killiyoor", "Thiruvattar", "Thovalai", "Vilavancode"],
-            "Karur": ["Karur", "Aravakurichi", "Kadavur", "Krishnarayapuram", "Kulithalai", "Manmangalam", "Pugalur"],
-            "Krishnagiri": ["Krishnagiri", "Anchetti", "Bargur", "Hosur", "Pochampalli", "Shoolagiri", "Thusanapalli", "Uthangarai"],
-            "Madurai": ["Madurai East", "Madurai West", "Madurai North", "Madurai South", "Madurai Central", "Melur", "Peraiyur", "Thirumangalam", "Thiruparankundram", "Usilampatti", "Vadipatti"],
-            "Mayiladuthurai": ["Mayiladuthurai", "Kuthalam", "Sirkazhi", "Tharangambadi"],
+            "Chengalpattu": ["Chengalpattu", "Pallavaram", "Tambaram", "Thiruporur", "Vandalur"],
+            "Chennai": ["Alandur", "Ambattur", "Egmore", "Guindy", "Mylapore", "T Nagar", "Velachery"],
+            "Coimbatore": ["Coimbatore North", "Coimbatore South", "Mettupalayam", "Pollachi", "Sulur"],
+            "Cuddalore": ["Cuddalore", "Chidambaram", "Panruti", "Virudhachalam"],
+            "Dharmapuri": ["Dharmapuri", "Harur", "Palacode", "Pennagaram"],
+            "Dindigul": ["Dindigul", "Atthur", "Kodaikanal", "Nilakottai", "Palani"],
+            "Erode": ["Erode", "Bhavani", "Gobichettipalayam", "Perundurai"],
+            "Kallakurichi": ["Kallakurichi", "Sankarapuram", "Tirukkoilur", "Ulundurpet"],
+            "Kancheepuram": ["Kancheepuram", "Sriperumbudur", "Uthiramerur", "Walajabad"],
+            "Kanniyakumari": ["Agasteeswaram", "Kalkulam", "Thovalai", "Vilavancode"],
+            "Karur": ["Karur", "Aravakurichi", "Kulithalai"],
+            "Krishnagiri": ["Krishnagiri", "Hosur", "Pochampalli", "Uthangarai"],
+            "Madurai": ["Madurai East", "Madurai West", "Melur", "Thirumangalam", "Usilampatti"],
+            "Mayiladuthurai": ["Mayiladuthurai", "Sirkazhi", "Tharangambadi", "Kuthalam"],
             "Nagapattinam": ["Nagapattinam", "Kilvelur", "Thirukkuvalai", "Vedaranyam"],
-            "Namakkal": ["Namakkal", "Kollimalai", "Kumarapalayam", "Mohanur", "Paramathi Velur", "Rasipuram", "Senthamangalam", "Tiruchengode"],
-            "Nilgiris": ["Udhagamandalam", "Coonoor", "Gudalur", "Kotagiri", "Kundah", "Pandalur"],
-            "Perambalur": ["Perambalur", "Alathur", "Kunnam", "Veppanthattai"],
-            "Pudukkottai": ["Pudukkottai", "Alangudi", "Aranthangi", "Avudaiyarkoil", "Gandarvakottai", "Iluppur", "Karambakudi", "Kulathur", "Manamelkudi", "Ponnamaravathi", "Thirumayam"],
-            "Ramanathapuram": ["Ramanathapuram", "Kadaladi", "Kamuthi", "Kilaselvanur", "Mudukulathur", "Paramakudi", "Rameswaram", "Tiruvadanai"],
-            "Ranipet": ["Ranipet", "Arakkonam", "Arcot", "Nemili", "Sholinghur", "Wallajah"],
-            "Salem": ["Salem", "Attur", "Edappadi", "Gangavalli", "Kadaiyampatti", "Mettur", "Omalur", "Pethanaickenpalayam", "Sankari", "Vazhapadi", "Yercaud"],
-            "Sivaganga": ["Sivaganga", "Devakottai", "Ilayangudi", "Kalaiyarkoil", "Karaikudi", "Manamadurai", "Singampunari", "Thirupuvanam"],
-            "Tenkasi": ["Tenkasi", "Alangulam", "Kadayanallur", "Sankarankovil", "Shenkottai", "Sivagiri", "Thiruvengadam", "V.K.Pudur"],
-            "Thanjavur": ["Thanjavur", "Kumbakonam", "Orathanadu", "Papanasam", "Pattukkottai", "Peravurani", "Thiruvaiyaru", "Thiruvidaimarudur"],
-            "Theni": ["Theni", "Andipatti", "Bodinayakanur", "Periyakulam", "Uthamapalayam"],
-            "Thoothukudi": ["Thoothukudi", "Eral", "Ettayapuram", "Kayathar", "Kovilpatti", "Ottapidaram", "Sathankulam", "Srivaikuntam", "Tiruchendur", "Vilathikulam"],
-            "Tiruchirappalli": ["Tiruchirappalli East", "Tiruchirappalli West", "Lalgudi", "Manachanallur", "Manapparai", "Musiri", "Srirangam", "Thottiyam", "Thuraiyur"],
-            "Tirunelveli": ["Tirunelveli", "Ambasamudram", "Cheranmahadevi", "Manur", "Nanguneri", "Palayamkottai", "Radhapuram", "Thisayanvilai"],
-            "Tirupathur": ["Tirupathur", "Ambur", "Natrampalli", "Vaniyambadi"],
-            "Tiruppur": ["Tiruppur North", "Tiruppur South", "Avinashi", "Dharapuram", "Kangeyam", "Madathukulam", "Palladam", "Udumalaipettai"],
-            "Tiruvallur": ["Tiruvallur", "Avadi", "Gummidipoondi", "Pallipattu", "Ponneri", "Poonamallee", "R.K. Pet", "Tiruttani", "Uthukkottai"],
-            "Tiruvannamalai": ["Tiruvannamalai", "Arni", "Chengam", "Chetpet", "Kalasapakkam", "Kilpennathur", "Polur", "Thandarampattu", "Vandavasi"],
-            "Tiruvarur": ["Tiruvarur", "Kodavasal", "Mannargudi", "Nannilam", "Needamangalam", "Thiruthuraipoondi", "Valangaiman"],
-            "Vellore": ["Vellore", "Anaicut", "Gudiyatham", "Katpadi", "Pernambut"],
-            "Viluppuram": ["Viluppuram", "Gingee", "Kandachipuram", "Marakkanam", "Melmalayanur", "Tindivanam", "Vikravandi"],
-            "Virudhunagar": ["Virudhunagar", "Aruppukkottai", "Kariapatti", "Rajapalayam", "Sathur", "Sivakasi", "Srivilliputhur", "Tiruchuli", "Watrap"]
+            "Namakkal": ["Namakkal", "Rasipuram", "Tiruchengode"],
+            "Nilgiris": ["Udhagamandalam", "Coonoor", "Gudalur", "Kotagiri"],
+            "Perambalur": ["Perambalur", "Alathur", "Kunnam"],
+            "Pudukkottai": ["Pudukkottai", "Alangudi", "Aranthangi", "Kulathur"],
+            "Ramanathapuram": ["Ramanathapuram", "Paramakudi", "Rameswaram"],
+            "Ranipet": ["Ranipet", "Arakkonam", "Arcot", "Walaja"],
+            "Salem": ["Salem", "Attur", "Mettur", "Omalur", "Sankari"],
+            "Sivaganga": ["Sivaganga", "Devakottai", "Karaikudi", "Manamadurai"],
+            "Tenkasi": ["Tenkasi", "Alangulam", "Sankarankovil", "Shenkottai"],
+            "Thanjavur": ["Thanjavur", "Kumbakonam", "Orathanadu", "Pattukkottai"],
+            "Theni": ["Theni", "Andipatti", "Bodinayakanur", "Periyakulam"],
+            "Thoothukudi": ["Thoothukudi", "Kovilpatti", "Tiruchendur", "Vilathikulam"],
+            "Tiruchirappalli": ["Tiruchirappalli", "Lalgudi", "Manapparai", "Musiri", "Thuraiyur"],
+            "Tirunelveli": ["Tirunelveli", "Ambasamudram", "Nanguneri", "Radhapuram"],
+            "Tirupathur": ["Tirupathur", "Ambur", "Vaniyambadi"],
+            "Tiruppur": ["Tiruppur", "Avinashi", "Dharapuram", "Palladam"],
+            "Tiruvallur": ["Tiruvallur", "Avadi", "Ponneri", "Poonamallee", "Tiruttani"],
+            "Tiruvannamalai": ["Tiruvannamalai", "Arni", "Chengam", "Polur", "Vandavasi"],
+            "Tiruvarur": ["Tiruvarur", "Mannargudi", "Nannilam", "Thiruthuraipoondi"],
+            "Vellore": ["Vellore", "Gudiyatham", "Katpadi", "Pernambut"],
+            "Viluppuram": ["Viluppuram", "Gingee", "Tindivanam", "Vikravandi"],
+            "Virudhunagar": ["Virudhunagar", "Aruppukkottai", "Rajapalayam", "Sivakasi", "Srivilliputhur"]
         };
 
-        // --- App Lifecycle ---
-        window.onload = () => {
-            setTimeout(() => { document.getElementById('loader').style.display='none'; }, 2000);
-            populateDistricts();
-        };
+        window.onload = () => { setTimeout(() => document.getElementById('loader').style.display='none', 1500); populateDistricts(); };
 
         function populateDistricts() {
-            let opts = '<option value="">மாவட்டத்தை தேர்வு செய்க</option>';
-            Object.keys(tnData).sort().forEach(d => opts += `<option value="${d}">${d}</option>`);
-            document.getElementById('regDist').innerHTML = opts;
-            document.getElementById('searchDist').innerHTML = opts;
+            let opts = '<option value="">மாவட்டம்</option>', sOpts = '<option value="">அனைத்து மாவட்டம்</option>';
+            Object.keys(tnData).sort().forEach(d => { opts += `<option value="${d}">${d}</option>`; sOpts += `<option value="${d}">${d}</option>`; });
+            document.getElementById('donDist').innerHTML = opts; document.getElementById('reqDist').innerHTML = opts; document.getElementById('searchDist').innerHTML = sOpts;
         }
 
-        function loadTalukas(dId, tId, selectedT = "") {
-            let d = document.getElementById(dId).value;
-            let opts = '<option value="">தாலுக்காவை தேர்வு செய்க</option>';
-            if(d && tnData[d]) {
-                tnData[d].sort().forEach(t => opts += `<option value="${t}" ${t === selectedT ? 'selected':''}>${t}</option>`);
-            }
+        function loadTalukas(dId, tId, isSearch = false) {
+            let d = document.getElementById(dId).value, opts = isSearch ? '<option value="">அனைத்து தாலுக்கா</option>' : '<option value="">தாலுக்கா</option>';
+            if(d && tnData[d]) tnData[d].sort().forEach(t => opts += `<option value="${t}">${t}</option>`);
             document.getElementById(tId).innerHTML = opts;
         }
 
-        function toggleMenu() {
-            let m = document.getElementById('mainMenu');
-            m.style.display = (m.style.display === 'block') ? 'none' : 'block';
+        function toggleMenu() { let m = document.getElementById('menuBox'); m.style.display = (m.style.display==='block')?'none':'block'; }
+        function openModal(id) { document.getElementById(id).style.display='flex'; toggleMenu(); }
+        function closeModal(id) { document.getElementById(id).style.display='none'; }
+        function showSec(id) { document.querySelectorAll('.section').forEach(s => s.style.display='none'); document.getElementById(id).style.display='block'; document.getElementById('t1').classList.toggle('active', id==='donate'); document.getElementById('t2').classList.toggle('active', id==='need'); }
+
+        function saveData(type) {
+            let data = type === 'donors' ? { name: document.getElementById('donName').value, blood: document.getElementById('donBlood').value, dist: document.getElementById('donDist').value, taluk: document.getElementById('donTaluk').value, phone: document.getElementById('donPhone').value, lastDonated: "" } 
+            : { name: document.getElementById('reqName').value, blood: document.getElementById('reqBlood').value, dist: document.getElementById('reqDist').value, taluk: document.getElementById('reqTaluk').value, hospital: document.getElementById('reqHospital').value, note: document.getElementById('reqNote').value, phone: document.getElementById('reqPhone').value, status: "Pending" };
+            if(!data.name || !data.phone) return alert("விவரங்களை நிரப்புக!");
+            db.ref(type).push(data).then(() => { alert("சேமிக்கப்பட்டது!"); location.reload(); });
         }
 
-        function showSec(id) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
-            document.getElementById(id).classList.add('active-section');
-            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-            document.getElementById(id === 'register' ? 't1' : 't2').classList.add('active');
-        }
-
-        // --- Core: Save/Update with Green Tick ---
-        function saveDonor() {
-            let key = document.getElementById('edit-key').value;
-            let data = {
-                name: document.getElementById('regName').value,
-                blood: document.getElementById('regBlood').value,
-                dist: document.getElementById('regDist').value,
-                taluk: document.getElementById('regTaluk').value,
-                phone: document.getElementById('regPhone').value,
-                lastDonated: document.getElementById('edit-key').getAttribute('data-date') || ""
-            };
-
-            if(!data.name || !data.blood || !data.dist || !data.phone) return alert("அனைத்து விவரங்களையும் பூர்த்தி செய்க!");
-
-            let action = key ? db.ref('donors/'+key).update(data) : db.ref('donors').push(data);
-
-            action.then(() => {
-                document.getElementById('success-msg').innerText = key ? "விவரங்கள் புதுப்பிக்கப்பட்டது!" : "வெற்றிகரமாக சேமிக்கப்பட்டது!";
-                showSuccess();
-                resetForm();
-            });
-        }
-
-        function showSuccess() {
-            let s = document.getElementById('success-overlay');
-            s.style.display = 'flex';
-            setTimeout(() => { s.style.display = 'none'; }, 2000);
-        }
-
-        function resetForm() {
-            document.getElementById('edit-key').value = "";
-            document.getElementById('regName').value = "";
-            document.getElementById('regBlood').value = "";
-            document.getElementById('regDist').value = "";
-            document.getElementById('regTaluk').innerHTML = '<option value="">தாலுக்கா</option>';
-            document.getElementById('regPhone').value = "";
-            document.getElementById('form-head').innerText = "புதிய தானாளர் பதிவு";
-            document.getElementById('save-btn').innerText = "சேமிக்க (SAVE)";
-            document.getElementById('cancel-edit').style.display = 'none';
-        }
-
-        // --- Admin Functions: Edit, Delete, Set Date ---
-        function openAdmin() {
-            let p = prompt("அட்மின் பாஸ்வேர்டு:");
-            if(p === "1234") {
-                document.getElementById('admin-panel').style.display = 'block';
-                toggleMenu();
-                loadAdminList();
-            } else if(p) alert("தவறான கடவுச்சொல்!");
-        }
-
-        function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
+        function checkLogin() { let u = document.getElementById('user').value, p = document.getElementById('pass').value; if(u==="admin" && p==="1234") { currentRole="admin"; openAdmin(); } else if(u==="master" && p==="1997") { currentRole="master"; openAdmin(); } else alert("தவறான ரகசிய எண்!"); }
+        function openAdmin() { closeModal('loginModal'); document.getElementById('admin-panel').style.display='block'; document.getElementById('panelTitle').innerText = currentRole === "master" ? "Master Control" : "Admin Panel"; switchTab('donors'); }
+        function closeAdmin() { document.getElementById('admin-panel').style.display='none'; }
+        function switchTab(t) { currentTab = t; document.getElementById('tabDon').classList.toggle('active', t==='donors'); document.getElementById('tabReq').classList.toggle('active', t==='requests'); loadAdminList(); }
 
         function loadAdminList() {
-            db.ref('donors').once('value').then(snap => {
-                let list = document.getElementById('adminList');
-                list.innerHTML = "";
+            let listDiv = document.getElementById('adminList'); listDiv.innerHTML = "<p style='text-align:center; padding:20px; color:#666;'>Loading Data...</p>";
+            db.ref(currentTab).once('value', snap => {
+                listDiv.innerHTML = "";
                 snap.forEach(child => {
-                    let d = child.val();
-                    list.innerHTML += `
-                        <div class="admin-donor-card" data-txt="${d.name} ${d.taluk} ${d.blood}">
-                            <strong>${d.name} (${d.blood})</strong> - ${d.taluk}<br>
-                            <small>${d.phone}</small>
-                            <div class="admin-btns">
-                                <button style="background:var(--green);" onclick="setDate('${child.key}')">Set Date</button>
-                                <button style="background:var(--blue);" onclick="editDonor('${child.key}')">Edit</button>
-                                <button style="background:#000;" onclick="deleteDonor('${child.key}')">Delete</button>
-                            </div>
-                        </div>`;
-                });
-            });
-        }
-
-        function editDonor(key) {
-            db.ref('donors/'+key).once('value').then(snap => {
-                let d = snap.val();
-                showSec('register');
-                document.getElementById('edit-key').value = key;
-                document.getElementById('edit-key').setAttribute('data-date', d.lastDonated || "");
-                document.getElementById('regName').value = d.name;
-                document.getElementById('regBlood').value = d.blood;
-                document.getElementById('regDist').value = d.dist;
-                loadTalukas('regDist', 'regTaluk', d.taluk);
-                document.getElementById('regPhone').value = d.phone;
-
-                document.getElementById('form-head').innerText = "பதிவை திருத்துக (EDIT MODE)";
-                document.getElementById('save-btn').innerText = "UPDATE DETAILS";
-                document.getElementById('cancel-edit').style.display = 'block';
-                closeAdmin();
-            });
-        }
-
-        function deleteDonor(key) {
-            if(confirm("இந்த பதிவை நீக்கவா?")) db.ref('donors/'+key).remove().then(() => loadAdminList());
-        }
-
-        function setDate(key) {
-            let d = prompt("தானம் செய்த தேதி (YYYY-MM-DD):", new Date().toISOString().split('T')[0]);
-            if(d) db.ref('donors/'+key).update({ lastDonated: d }).then(() => {
-                showSuccess();
-                loadAdminList();
-            });
-        }
-
-        function adminFilter() {
-            let v = document.getElementById('adminLiveSearch').value.toLowerCase();
-            document.querySelectorAll('.admin-donor-card').forEach(c => {
-                c.style.display = c.getAttribute('data-txt').toLowerCase().includes(v) ? 'block' : 'none';
-            });
-        }
-
-        // --- Search Functionality ---
-        function findDonor() {
-            let b = document.getElementById('searchBlood').value;
-            let d = document.getElementById('searchDist').value;
-            let t = document.getElementById('searchTaluk').value;
-            let res = document.getElementById('searchResults');
-            res.innerHTML = "<p style='text-align:center;'>தேடப்படுகிறது...</p>";
-
-            db.ref('donors').once('value').then(snap => {
-                res.innerHTML = "";
-                let count = 0;
-                snap.forEach(child => {
-                    let don = child.val();
-                    let mB = (b === "All" || don.blood === b);
-                    let mD = (d === "" || don.dist === d);
-                    let mT = (t === "" || don.taluk === t);
-
-                    if(mB && mD && mT) {
-                        count++;
-                        let status = checkEligible(don.lastDonated);
-                        res.innerHTML += `
-                            <div class="donor-item">
-                                <span class="status-dot ${status.avail?'dot-green':'dot-red'}"></span>
-                                <h3 style="color:var(--red);">${don.name} (${don.blood})</h3>
-                                <p><i class="fas fa-map-marker-alt"></i> ${don.dist}, ${don.taluk}</p>
-                                <a href="tel:${don.phone}" style="display:block; margin-top:10px; color:var(--blue); font-weight:bold; text-decoration:none;"><i class="fas fa-phone"></i> ${don.phone}</a>
-                                <div style="margin-top:10px; font-size:12px; color:#666; border-top:1px dashed #ccc; padding-top:5px;">
-                                    அடுத்த தானம்: <b>${status.next}</b>
-                                </div>
-                            </div>`;
+                    let d = child.val(), card = document.createElement('div');
+                    card.className = "list-item"; card.setAttribute('data-dist', d.dist); card.setAttribute('data-taluk', d.taluk); card.setAttribute('data-blood', d.blood);
+                    if(currentTab === 'donors') {
+                        let isReady = checkEligible(d.lastDonated);
+                        card.innerHTML = `<span class="status-badge" style="background:${isReady?'var(--green)':'var(--red)'}">${isReady?'READY':'WAITING'}</span>
+                        <strong>${d.name} (${d.blood})</strong><br><small><i class="fas fa-map-marker-alt"></i> ${d.dist}, ${d.taluk}</small><br>
+                        <div class="master-btns"><a href="tel:${d.phone}" class="m-btn call-btn"><i class="fas fa-phone-alt"></i> CALL</a>
+                        ${currentRole==='master' ? `<button class="m-btn edit-btn" onclick="mEdit('${child.key}')"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="m-btn del-btn" onclick="mDelete('donors','${child.key}')"><i class="fas fa-trash"></i> Delete</button>
+                        <button class="m-btn date-btn" onclick="mSetDate('${child.key}')"><i class="fas fa-calendar-check"></i> Status</button>` : ''}</div>`;
+                    } else {
+                        card.innerHTML = `<span class="status-badge" style="background:${d.status==='Pending'?'orange':'var(--green)'}">${d.status}</span>
+                        <strong>தேவை: ${d.blood}</strong><br><small>நோயாளி: ${d.name} | ${d.taluk}</small><br>
+                        <small>மருத்துவமனை: ${d.hospital}</small><br><p style="font-size:12px; margin-top:5px; color:#555;">${d.note}</p>
+                        <div class="master-btns"><a href="tel:${d.phone}" class="m-btn call-btn" style="background:var(--blue); color:white;"><i class="fas fa-phone-alt"></i> CALL NOW</a>
+                        ${currentRole==='master' ? `<button class="m-btn del-btn" onclick="mDelete('requests','${child.key}')"><i class="fas fa-trash"></i> Delete Request</button>` : ''}</div>`;
                     }
-                });
-                if(count === 0) res.innerHTML = "<p style='text-align:center; color:red; margin-top:20px;'>தகவல்கள் எதுவும் கிடைக்கவில்லை!</p>";
+                    listDiv.appendChild(card);
+                }); filterAdminList();
             });
         }
 
-        function checkEligible(date) {
-            if(!date) return { avail: true, next: "இன்றே வழங்கலாம்" };
-            let last = new Date(date);
-            let next = new Date(last);
-            next.setMonth(last.getMonth() + 3);
-            let avail = new Date() > next;
-            return { avail, next: next.toLocaleDateString('en-GB') };
+        function checkEligible(date) { if(!date) return true; let next = new Date(date); next.setMonth(next.getMonth() + 3); return new Date() > next; }
+
+        function filterAdminList() {
+            let d = document.getElementById('searchDist').value, t = document.getElementById('searchTaluk').value, b = document.getElementById('searchBlood').value;
+            document.querySelectorAll('.list-item').forEach(item => {
+                let matchD = (d === "" || item.getAttribute('data-dist') === d), matchT = (t === "" || item.getAttribute('data-taluk') === t), matchB = (b === "" || item.getAttribute('data-blood') === b);
+                item.style.display = (matchD && matchT && matchB) ? 'block' : 'none';
+            });
         }
 
-        // --- Info Modals ---
-        function openAbout() { showModal("<h3>Blood Point</h3><p>இது DYFI வழங்கும் ஒரு அவசர இரத்த தான சேவை தளமாகும்.</p>"); }
-        function openContact() { showModal("<h3>Help Line</h3><p>உதவிக்கு: 984xxxxxxx</p><p>Email: dyfi@example.com</p>"); }
-        function showModal(c) {
-            document.getElementById('modalBody').innerHTML = c + `<button class="btn" style="background:#555; margin-top:20px;" onclick="closeModal()">Close</button>`;
-            document.getElementById('modalBox').style.display = 'flex';
+        function mDelete(path, key) { if(confirm("நிச்சயமாக நீக்கவா?")) db.ref(path+'/'+key).remove().then(loadAdminList); }
+        function mSetDate(key) { let d = prompt("தானம் வழங்கிய தேதி (YYYY-MM-DD):", new Date().toISOString().split('T')[0]); if(d) db.ref('donors/'+key).update({ lastDonated: d }).then(loadAdminList); }
+        function mEdit(key) {
+            db.ref('donors/'+key).once('value', snap => {
+                let d = snap.val();
+                document.getElementById('masterContent').innerHTML = `<span class="close-modal" onclick="closeModal('masterModal')">&times;</span><h3 style="color:var(--blue);">விவரங்களை மாற்று</h3>
+                <input type="text" id="editN" value="${d.name}" placeholder="பெயர்"><input type="tel" id="editP" value="${d.phone}" placeholder="அலைபேசி எண்"><input type="text" id="editT" value="${d.taluk}" placeholder="தாலுக்கா">
+                <button class="btn" style="background:var(--blue); margin-top:10px;" onclick="saveMasterEdit('${key}')">UPDATE NOW</button>`;
+                document.getElementById('masterModal').style.display='flex';
+            });
         }
-        function closeModal() { document.getElementById('modalBox').style.display = 'none'; }
+        function saveMasterEdit(key) {
+            let n = document.getElementById('editN').value, p = document.getElementById('editP').value, t = document.getElementById('editT').value;
+            if(!n || !p || !t) return alert("அனைத்து விவரங்களையும் நிரப்பவும்!");
+            db.ref('donors/'+key).update({ name: n, phone: p, taluk: t }).then(() => { closeModal('masterModal'); loadAdminList(); });
+        }
     </script>
 </body>
 </html>
